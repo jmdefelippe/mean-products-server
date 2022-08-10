@@ -35,7 +35,7 @@
 			"response": []
 		},
 		{
-			"name": "List products",
+			"name": "Get product by id",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -62,7 +62,7 @@
 			"response": []
 		},
 		{
-			"name": "Get product by id",
+			"name": "List products",
 			"request": {
 				"method": "GET",
 				"header": [],
