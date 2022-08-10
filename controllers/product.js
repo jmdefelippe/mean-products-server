@@ -1,46 +1,60 @@
 const Product = require("../models/Product");
+const status = require("../const/statusCode");
+const { validationResult } = require('express-validator');
 
 exports.createProduct = async (req, res) => {
+    const errors = validationResult(req);
+    if ( !errors.isEmpty() ) {
+        return res.status(status.OK).json({errors: errors.array() })
+    }
     try {
-        let product;
-        product = new Product(req.body);
+        const product = new Product({...req.body, user: req.user.id});
+        product.user = req.user.id;
         await product.save();
-        return res.send(product);
+        res.json(product);
     } catch (error) {
         console.log(error);
-        return res.status(500).send('Hubo un error');
+        return res.status(status.INTERNAL_SERVER_ERROR).send('Hubo un error');
     }
 }
 
 exports.getProducts = async (req, res) => {
     try {
-        const products = await Product.find();
-        return res.json(products);
+        const products = await Product.find({ user: req.user.id });
+        res.json({ products });
     } catch (error) {
         console.log(error);
-        return res.status(500).send('Hubo un error');
+        return res.status(status.INTERNAL_SERVER_ERROR).send('Hubo un error');
     }
 }
 
 exports.updateProduct = async (req, res) => {
+    const errores = validationResult(req);
+    if ( !errores.isEmpty() ) {
+        return res.status(status.OK).json({errores: errores.array() })
+    }
+    const { name, category, location, price } = req.body;
+    const updatedProduct = {};
+    updatedProduct.name = name ? name : product.name
+    updatedProduct.category = category ? category : product.category
+    updatedProduct.location = location ? location : product.location
+    updatedProduct.price = price ? price : product.price
+    
     try {
-        const { name, category, location, price } = req.body;
         let product = await Product.findById(req.params.id);
-
         if (!product) {
-            return res.status(404).json({ msg: 'No existe el producto' });
+            return res.status(404).json({ msg: 'Producto no encontrada '})
         }
+        if (product.user.toString() !== req.user.id) {
+            return res.status(status.UNAUTHORIZED).json({ msg: 'No autorizado '});
+        }
+        product = await Product.findByIdAndUpdate({ _id: req.params.id }, { $set:
+        updatedProduct }, { new: true });
 
-        product.name = name;
-        product.category = category;
-        product.location = location;
-        product.price = price;
-
-        product = await Product.findOneAndUpdate({ _id: req.params.id }, product, { new: true });
-        return res.json(product);
+        res.json({product});
     } catch (error) {
         console.log(error);
-        return res.status(500).send('Hubo un error');
+        return res.status(status.INTERNAL_SERVER_ERROR).send('Hubo un error');
     }
 }
 
@@ -50,26 +64,26 @@ exports.getProduct = async (req, res) => {
         if (!product) {
             return res.status(404).json({ msg: 'No existe el producto' });
         }
-
         return res.json(product);
     } catch (error) {
         console.log(error);
-        return res.status(500).send('Hubo un error');
+        return res.status(status.INTERNAL_SERVER_ERROR).send('Hubo un error');
     }
 }
 
 exports.deleteProduct = async (req, res) => {
     try {
         let product = await Product.findById(req.params.id);
-
         if (!product) {
-            return res.status(404).json({ msg: 'No existe el producto' });
+            return res.status(404).json({ msg: 'El producto no existe' })
         }
-
-        await Product.findOneAndRemove({ _id: req.params.id });
-        return res.json({ msg: 'Producto eliminado con éxito' });
+        if (product.user.toString() !== req.user.id) {
+            return res.status(status.UNAUTHORIZED).json({ msg: 'No autorizado' });
+        }
+        await Product.findOneAndRemove({ _id : req.params.id });
+        res.json({ msg: 'Producto eliminado' })
     } catch (error) {
         console.log(error);
-        return res.status(500).send('Hubo un error');
+        return res.status(status.INTERNAL_SERVER_ERROR).send('Hubo un error');
     }
 }

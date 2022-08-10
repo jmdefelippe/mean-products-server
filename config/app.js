@@ -1,12 +1,19 @@
 const express = require('express');
 const connectDB = require('./db');
 const cors = require("cors");
-const product = require('../routes/product');
+const auth = require('../routes/auth');
+const product = require('../routes/products');
+const user = require('../routes/users');
 
 function configureApp(app) {
     connectDB();
 
-    app.use(cors());
+//    app.use(cors());
+
+    const optionsCors = {
+        origin: process.env.FRONTEND_URL
+    }
+    app.use(cors(optionsCors) );
 
     app.use(express.json());
 
@@ -18,7 +25,9 @@ function configureApp(app) {
         });
     })
 
+    app.use('/api/auth', auth);
     app.use('/api/products', product);
+    app.use('/api/users', user);
 
     return app;
 }
