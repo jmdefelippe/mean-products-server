@@ -8,12 +8,7 @@ const user = require('../routes/users');
 function configureApp(app) {
     connectDB();
 
-//    app.use(cors());
-
-    const optionsCors = {
-        origin: process.env.FRONTEND_URL
-    }
-    app.use(cors(optionsCors) );
+    app.use(cors());
 
     app.use(express.json());
 
