@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const status = require("../const/statusCode");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
@@ -12,8 +13,7 @@ exports.authenticateUser = async (req, res, next) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
     if(!user) {
-        res.status(status.UNAUTHORIZED).json({msg : 'El Usuario No Existe'});
-        return next();
+        return res.status(status.UNAUTHORIZED).json({msg : 'Credenciales inválidas'});
     } 
     if(bcrypt.compareSync(password, user.password )) {
         const token = jwt.sign({
@@ -21,12 +21,11 @@ exports.authenticateUser = async (req, res, next) => {
             name: user.name,
             email: user.email
         }, process.env.SECRET, {
-            //expiresIn: '8h'
-        }  );
-        res.json({ token })
+            expiresIn: '8h'
+        });
+        return res.json({ token, expiresIn: '8h' })
     } else {
-        res.status(status.UNAUTHORIZED).json({msg: "Password Incorrecto"});
-        return next();
+        return res.status(status.UNAUTHORIZED).json({msg: "Credenciales inválidas"});
     }
 }
 

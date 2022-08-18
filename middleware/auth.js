@@ -1,28 +1,22 @@
 const jwt = require('jsonwebtoken');
+const status = require("../const/statusCode");
 require('dotenv').config();
 //require('dotenv').config({ path: 'variables.env'});
 
 module.exports = (req, res, next ) => {
     const authHeader = req.get('Authorization');
-
-    console.log({authHeader})
-
     if(authHeader) {
-        // Obtener el Token 
         const token = authHeader.split(' ')[1];
-        console.log({token})
         if(token) {
-            // comprobar el JWT
             try {
                 const user = jwt.verify(token, process.env.SECRET );
-                console.log({user})
                 req.user = user;
+                return next();
             } catch (error) {
-                console.log(error);
-                console.log('JWT no valido');
+                return res.status(status.UNAUTHORIZED).json({msg : 'JWT no valido'});
             }
         }
-    } 
-
-    return next();
+    } else {
+        return res.status(status.UNAUTHORIZED).json({msg : 'No se encontró el Token'});
+    }
 }
