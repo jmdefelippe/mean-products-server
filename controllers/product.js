@@ -21,7 +21,7 @@ exports.createProduct = async (req, res) => {
 exports.getProducts = async (req, res) => {
     try {
         const products = await Product.find({ user: req.user.id });
-        res.json({ products });
+        return res.json({ products });
     } catch (error) {
         console.log(error);
         return res.status(status.INTERNAL_SERVER_ERROR).send('Hubo un error');
