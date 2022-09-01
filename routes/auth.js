@@ -11,10 +11,6 @@ router.post('/',
     ],
     authController.authenticateUser
 );
-
-router.get('/',
-    auth,
-    authController.authenticatedUser
-);
+router.get('/', auth, authController.authenticatedUser);
 
 module.exports = router;

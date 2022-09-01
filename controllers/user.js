@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
+const status = require("../const/statusCode");
 const { validationResult } = require('express-validator');
 
 exports.newUser = async (req, res) => {
@@ -20,5 +21,18 @@ exports.newUser = async (req, res) => {
         res.json({msg : 'Usuario Creado Correctamente'});
     } catch (error) {
         console.log(error);
+    }
+}
+
+exports.getUser = async (req, res) => {
+    try {
+        let user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ msg: 'No existe el producto' });
+        }
+        return res.json(user);
+    } catch (error) {
+        console.log(error);
+        return res.status(status.INTERNAL_SERVER_ERROR).send('Hubo un error');
     }
 }
