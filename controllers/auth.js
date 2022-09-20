@@ -21,7 +21,7 @@ exports.authenticateUser = async (req, res, next) => {
             name: user.name,
             email: user.email
         }, process.env.SECRET, {
-            expiresIn: '8h'
+            // expiresIn: '8h'
         });
         return res.json({ token, expiresIn: '8h' })
     } else {
@@ -30,5 +30,5 @@ exports.authenticateUser = async (req, res, next) => {
 }
 
 exports.authenticatedUser = (req, res, next) => {
-    res.json({user: req.user } );
+    res.json({ user: req.user } );
 }
